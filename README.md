@@ -46,3 +46,16 @@ Before you commit your project, put your team name, name of all members and matr
 > Your Project Report Goes Here
 
 ----
+
+Team Name:VIP 
+Project Name:Quick Sort
+Section:2
+Members: 
+1. Balqis Abd Manan				1510722
+2. Nik Nabilah Fairihin Hani Salman	        1429918
+3. Nur Faizah Azahari				1514062
+4. Nurul Nadia Che Saufi			1514016
+
+
+
+Project report:
