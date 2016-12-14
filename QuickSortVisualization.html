@@ -1,0 +1,140 @@
+<!DOCTYPE > 
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Quick Sort - VIP (14)</title>
+<script src="jquery-1.6.1.min.js" type="text/javascript"></script>
+<script src="Drawing.js" type="text/javascript"></script>
+<script src="Button.js" type="text/javascript"></script>
+<script src="Sorting.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+   var borderColor = "#993300";  // I would use 'const', not 'var', but it breaks in IE
+   var barColor = "#0000CC";
+   var finishedBarColor = "#000";
+   var movingBarColor = "#CCCCFF";
+   var movingBarOutlineColor = "#888";
+   var boxColor = "#CC6633";
+   var multiBoxColor = "#0B0";
+   var maxColor = "#F00";
+   
+   var barGap = 8;
+   
+   var IDLE = 0;     // possible values for the "state" variable.
+   var STARTING = 1;
+   var RUN = 2;
+   var STEPPING = 3;
+   var PAUSED = 4;
+   
+   var state = IDLE;
+   
+   var g;  // graphic context for drawing on the canvas.
+   var width, height;  // width and height of the canvas.
+   
+   var barWidth, barHeight, minBarHeight, barIncrement; // measurements used for drawing.
+   var leftOffset, firstRow_y, secondRow_y, textAscent;
+
+   var method;  // The sorting method that is being used, coded as 1,2,3,4,5; controlled by a select element.
+   
+   var fast = false;  // Things move faster when this is true;  the value is controlled by a checkbox.
+   
+   var item = new Array();  // a 33-element array containing the numbers to be sorted in positions 1 to 16.
+                            // item[0] holds the value of temp.  positions 17 - 33 are used in MergeSort.
+                            // a value of -1 in this array means that no item is present.  When an item
+                            // is in its final position, 100 is added to the value as a signal that the
+                            // item should be drawn in black.
+   
+   var tempOn = false;     // Variables that control the extra stuff that is sometimes drawn, in addition to items.
+   var mergeBox = [ -1, -1, -1 ];;
+   var multiBoxLoc = { x: -1, y: -1 };
+   var movingItemLoc = { x: -1, y: -1 };
+   var maxLoc, hiLoc, loLoc, box1Loc, box2Loc, movingItem;
+   
+   var copyCt; // Number of copies done so far in the current sort.
+   var compCt; // Number of comparisons done so far in the current sort.
+   
+   var timeout = null;  // When non-null, indicates a pending timeout (so it can be cleared to stop the animation).
+   
+   function say1(message) { // put the message in the paragraph with id "message1"
+     $("#message1").html(message);
+   }
+
+   function say2(message) {  // put the message in the paragraph with id "message2", unless running at "fast" speed
+     if (!fast || state != RUN || message == "")
+        $("#message2").html(message);
+   }
+
+   function stopRunning() {  // does any pending actions in the action queue (with no delay) and cancels any timeout.
+      while (actionQueue.length > 0) {
+         doAction(actionQueue.shift());
+      }
+      if (timeout) {
+         clearTimeout(timeout);
+         timeout = null;
+      }
+   }
+   
+   function setState(newState) {  // called whenever the state changes; sets enabled/disabled status of various elements.
+      state = newState;
+      $("#runBtn").attr("disabled", state == RUN || state == IDLE || state == STEPPING);
+      $("#stepBtn").attr("disabled", state == RUN || state == IDLE || state == STEPPING);
+      $("#sortSelect").attr("disabled", state == RUN || state == PAUSED || state == STEPPING);
+   }
+
+   function newSort() {  // Set up to get ready for a new sort by storing items in random array positions, etc.
+      stopRunning();
+      setState(STARTING);
+      valid = false;
+      maxLoc = -1;
+      hiLoc = -1;
+      loLoc = -1;
+      box1Loc = -1;
+      box2Loc = -1;
+      multiBoxLoc.x = -1;
+      mergeBox[0] = [ -1, -1, -1 ];
+      movingItem = -1;
+      tempOn = false;
+      for (var i = 1; i <= 16; i++)
+         item[i] = i;
+      for (var i = 16; i >= 2; i--) {
+         var j = 1 + Math.floor(Math.random()*i);
+         var temp = item[i];
+         item[i] = item[j];
+         item[j] = temp;
+      }
+      item[0] = -1;
+      for (var i = 17; i < 33; i++)
+         item[i] = -1;
+      $("#compCt").html("0");
+      $("#moveCt").html("0");
+      compCt = 0;
+      copyCt = 0;
+      valid = false;
+      say1("Click \"Run\" or \"Step\" to begin sorting.");
+      say2("");
+      draw();
+    }
+    
+    ///////////////////DRAWING///////////////////////////////////    
+   /////////////////SORTING////////////////////////////////
+   //////////////////////////BUTTON//////////////////////////////////
+
+</script>
+</head>
+<body>
+   <h2>Quick Sorting Algorithms</h2>   
+   <div style="float:left;">
+   <canvas id="sortcanvas" width=600 height=400 style="background-color:rgb(230,230,255)"></canvas>
+   </div>
+   <div style="float:left; margin-left:30px;">
+      <p><select id="sortSelect">
+         <option value="5">Quick Sort</option>
+      </select></p>
+      <p><button id="newBtn">Do Sort</button></p>
+      <p><button id="runBtn">Run</button></p>
+      <p><button id="stepBtn">Step</button></p>
+    </div>
+</body>
+</html>
